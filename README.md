@@ -1,15 +1,15 @@
-Http client with timeouts applied in between body read events
-=============================================================
+Http client with time-limited brRead
+====================================
 
 [![Build Status](https://github.com/lyokha/http-client-brread-timeout/workflows/CI/badge.svg)](https://github.com/lyokha/http-client-brread-timeout/actions?query=workflow%3ACI)
 [![Hackage](https://img.shields.io/hackage/v/http-client-brread-timeout.svg?label=hackage%20%7C%20http-client-brread-timeout&logo=haskell&logoColor=%239580D1)](https://hackage.haskell.org/package/http-client-brread-timeout)
 
 Note that the response timeout in
-[*http-client*](https://github.com/snoyberg/http-client) is applied only to
+[*http-client*](https://github.com/snoyberg/http-client) is applied only when
 receiving the response headers which is not always satisfactory given that a
 slow server may send the rest of the response very slowly.
 
-#### How do I test this?
+### How do I test this?
 
 A slow server can be emulated in *Nginx* with the following configuration.
 
@@ -60,7 +60,7 @@ http {
 
 *GHCI* session.
 
-```ShellSession
+```
 Prelude> import Network.HTTP.Client as HTTP.Client
 Prelude HTTP.Client> import Network.HTTP.Client.BrReadWithTimeout as BrReadWithTimeout
 Prelude HTTP.Client BrReadWithTimeout> httpManager = newManager defaultManagerSettings
