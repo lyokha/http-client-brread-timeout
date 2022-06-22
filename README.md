@@ -89,7 +89,7 @@ Response {responseStatus = Status {statusCode = 200, statusMessage = "OK"}, resp
 }
 (80.11 secs, 1,087,472 bytes)
 <b>Prelude HTTP.Client BrReadWithTimeout&gt;</b> httpLbsBrReadWithTimeout reqVerySlow man
-*** Exception: HttpExceptionRequest Request {
+&ast;&ast;&ast; Exception: HttpExceptionRequest Request {
   host                 = "127.0.0.1"
   port                 = 8010
   secure               = False
@@ -124,4 +124,16 @@ Response {responseStatus = Status {statusCode = 200, statusMessage = "OK"}, resp
 }
 (60.07 secs, 1,077,320 bytes)
 </pre>
+
+Here, the first request comes from the standard `httpLbs` which, after timely
+receiving of the first chunk of the response (including headers and the first
+chunk of the body), no longer applies any timeouts and may last as long as the
+response endures: in this case, it lasts 80 seconds and successfully returns.
+In the second request, `httpLbsBrReadWithTimeout` timely receives the first
+chunk of the response too, however the second chunk is coming in 40 seconds
+which exceeds the default response timeout value (30 seconds), and the function
+throws `ResponseTimeout` exception after 50 seconds from the start. In the third
+request, `httpLbsBrReadWithTimeout` returns successfully after 60 seconds
+because every chunk of the response comes every 20 seconds without triggering
+timeouts.
 
