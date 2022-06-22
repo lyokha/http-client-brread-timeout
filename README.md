@@ -62,15 +62,15 @@ http {
 
 *GHCI* session.
 
-```
-Prelude> import Network.HTTP.Client as HTTP.Client
-Prelude HTTP.Client> import Network.HTTP.Client.BrReadWithTimeout as BrReadWithTimeout
-Prelude HTTP.Client BrReadWithTimeout> httpManager = newManager defaultManagerSettings
-Prelude HTTP.Client BrReadWithTimeout> man <- httpManager
-Prelude HTTP.Client BrReadWithTimeout> reqVerySlow <- parseRequest "GET http://127.0.0.1:8010/very/slow"
-Prelude HTTP.Client BrReadWithTimeout> reqSlow <- parseRequest "GET http://127.0.0.1:8010/slow"
-Prelude HTTP.Client BrReadWithTimeout> :set +s
-Prelude HTTP.Client BrReadWithTimeout> httpLbs reqVerySlow man
+<pre>
+<b>Prelude&gt;</b> import Network.HTTP.Client as HTTP.Client
+<b>Prelude HTTP.Client&gt;</b> import Network.HTTP.Client.BrReadWithTimeout as BrReadWithTimeout
+<b>Prelude HTTP.Client BrReadWithTimeout&gt;</b> httpManager = newManager defaultManagerSettings
+<b>Prelude HTTP.Client BrReadWithTimeout&gt;</b> man &lt;- httpManager
+<b>Prelude HTTP.Client BrReadWithTimeout&gt;</b> reqVerySlow &lt;- parseRequest "GET http://127.0.0.1:8010/very/slow"
+<b>Prelude HTTP.Client BrReadWithTimeout&gt;</b> reqSlow &lt;- parseRequest "GET http://127.0.0.1:8010/slow"
+<b>Prelude HTTP.Client BrReadWithTimeout&gt;</b> :set +s
+<b>Prelude HTTP.Client BrReadWithTimeout&gt;</b> httpLbs reqVerySlow man
 Response {responseStatus = Status {statusCode = 200, statusMessage = "OK"}, responseVersion = HTTP/1.1, responseHeaders = [("Server","nginx/1.22.0"),("Date","Wed, 22 Jun 2022 03:54:43 GMT"),("Content-Type","application/octet-stream"),("Transfer-Encoding","chunked"),("Connection","keep-alive")], responseBody = "1\n2\n3\n", responseCookieJar = CJ {expose = []}, responseClose' = ResponseClose, responseOriginalRequest = Request {
   host                 = "127.0.0.1"
   port                 = 8010
@@ -88,7 +88,7 @@ Response {responseStatus = Status {statusCode = 200, statusMessage = "OK"}, resp
 }
 }
 (80.11 secs, 1,087,472 bytes)
-Prelude HTTP.Client BrReadWithTimeout> httpLbsBrReadWithTimeout reqVerySlow man
+<b>Prelude HTTP.Client BrReadWithTimeout&gt;</b> httpLbsBrReadWithTimeout reqVerySlow man
 *** Exception: HttpExceptionRequest Request {
   host                 = "127.0.0.1"
   port                 = 8010
@@ -105,7 +105,7 @@ Prelude HTTP.Client BrReadWithTimeout> httpLbsBrReadWithTimeout reqVerySlow man
   proxySecureMode      = ProxySecureWithConnect
 }
  ResponseTimeout
-Prelude HTTP.Client BrReadWithTimeout> httpLbsBrReadWithTimeout reqSlow man
+<b>Prelude HTTP.Client BrReadWithTimeout&gt;</b> httpLbsBrReadWithTimeout reqSlow man
 Response {responseStatus = Status {statusCode = 200, statusMessage = "OK"}, responseVersion = HTTP/1.1, responseHeaders = [("Server","nginx/1.22.0"),("Date","Wed, 22 Jun 2022 03:57:20 GMT"),("Content-Type","application/octet-stream"),("Transfer-Encoding","chunked"),("Connection","keep-alive")], responseBody = "1\n2\n3\n", responseCookieJar = CJ {expose = []}, responseClose' = ResponseClose, responseOriginalRequest = Request {
   host                 = "127.0.0.1"
   port                 = 8010
@@ -123,5 +123,5 @@ Response {responseStatus = Status {statusCode = 200, statusMessage = "OK"}, resp
 }
 }
 (60.07 secs, 1,077,320 bytes)
-```
+</pre>
 
