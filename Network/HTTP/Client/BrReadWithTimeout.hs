@@ -12,6 +12,9 @@
 --
 -- Http client with timeouts applied in between body read events.
 --
+-- Note that the response timeout in /http-client/ is applied only when
+-- receiving the response headers which is not always satisfactory given
+-- that a slow server may send the rest of the response very slowly.
 -----------------------------------------------------------------------------
 
 
@@ -65,7 +68,7 @@ brReadWithTimeout tmo req br = do
 
 -- | This is like 'httpLbs' but with a timeout between body read events.
 --
--- The value of the timeout gets converted from the 'ResponseTimeout' of the
+-- The value of the timeout is retrieved from the 'ResponseTimeout' of the
 -- request.
 httpLbsBrReadWithTimeout :: Request -> Manager -> IO (Response L.ByteString)
 httpLbsBrReadWithTimeout req man = withResponse req man $ \res -> do
