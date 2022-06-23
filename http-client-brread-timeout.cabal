@@ -1,5 +1,5 @@
 name:                   http-client-brread-timeout
-version:                0.1.0.1
+version:                0.1.0.2
 synopsis:       Http client with time-limited brRead
 description:    Http client with timeouts applied in between body read events.
         .
@@ -9,7 +9,7 @@ description:    Http client with timeouts applied in between body read events.
 homepage:               https://github.com/lyokha/http-client-brread-timeout
 license:                MIT
 license-file:           LICENSE
-extra-source-files:     Changelog.md
+extra-source-files:     Changelog.md, README.md
 author:                 Alexey Radkov <alexey.radkov@gmail.com>
 maintainer:             Alexey Radkov <alexey.radkov@gmail.com>
 stability:              experimental
