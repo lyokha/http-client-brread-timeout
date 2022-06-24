@@ -32,9 +32,9 @@ http {
         server_name     main;
 
         location /slow {
-            # send a single response body chunk once in 20 sec
             echo 1;
             echo_flush;
+            # send extra chunks of the response body once in 20 sec
             echo_sleep 20;
             echo 2;
             echo_flush;
@@ -42,19 +42,21 @@ http {
             echo 3;
             echo_flush;
             echo_sleep 20;
+            echo 4;
         }
 
         location /very/slow {
             echo 1;
             echo_flush;
             echo_sleep 20;
-            # chunk 2 is extremely slow (40 sec)
             echo 2;
             echo_flush;
+            # chunk 3 is extremely slow (40 sec)
             echo_sleep 40;
             echo 3;
             echo_flush;
             echo_sleep 20;
+            echo 4;
         }
     }
 }
@@ -71,7 +73,7 @@ http {
 <b>Prelude HTTP.Client BrReadWithTimeout&gt;</b> reqSlow &lt;- parseRequest "GET http://127.0.0.1:8010/slow"
 <b>Prelude HTTP.Client BrReadWithTimeout&gt;</b> :set +s
 <b>Prelude HTTP.Client BrReadWithTimeout&gt;</b> httpLbs reqVerySlow man
-Response {responseStatus = Status {statusCode = 200, statusMessage = "OK"}, responseVersion = HTTP/1.1, responseHeaders = [("Server","nginx/1.22.0"),("Date","Wed, 22 Jun 2022 03:54:43 GMT"),("Content-Type","application/octet-stream"),("Transfer-Encoding","chunked"),("Connection","keep-alive")], responseBody = "1\n2\n3\n", responseCookieJar = CJ {expose = []}, responseClose' = ResponseClose, responseOriginalRequest = Request {
+Response {responseStatus = Status {statusCode = 200, statusMessage = "OK"}, responseVersion = HTTP/1.1, responseHeaders = [("Server","nginx/1.22.0"),("Date","Thu, 23 Jun 2022 22:04:02 GMT"),("Content-Type","application/octet-stream"),("Transfer-Encoding","chunked"),("Connection","keep-alive")], responseBody = "1\n2\n3\n4\n", responseCookieJar = CJ {expose = []}, responseClose' = ResponseClose, responseOriginalRequest = Request {
   host                 = "127.0.0.1"
   port                 = 8010
   secure               = False
@@ -87,7 +89,7 @@ Response {responseStatus = Status {statusCode = 200, statusMessage = "OK"}, resp
   proxySecureMode      = ProxySecureWithConnect
 }
 }
-(80.11 secs, 1,087,472 bytes)
+(80.09 secs, 1,084,840 bytes)
 <b>Prelude HTTP.Client BrReadWithTimeout&gt;</b> httpLbsBrReadWithTimeout reqVerySlow man
 &ast;&ast;&ast; Exception: HttpExceptionRequest Request {
   host                 = "127.0.0.1"
@@ -106,7 +108,7 @@ Response {responseStatus = Status {statusCode = 200, statusMessage = "OK"}, resp
 }
  ResponseTimeout
 <b>Prelude HTTP.Client BrReadWithTimeout&gt;</b> httpLbsBrReadWithTimeout reqSlow man
-Response {responseStatus = Status {statusCode = 200, statusMessage = "OK"}, responseVersion = HTTP/1.1, responseHeaders = [("Server","nginx/1.22.0"),("Date","Wed, 22 Jun 2022 03:57:20 GMT"),("Content-Type","application/octet-stream"),("Transfer-Encoding","chunked"),("Connection","keep-alive")], responseBody = "1\n2\n3\n", responseCookieJar = CJ {expose = []}, responseClose' = ResponseClose, responseOriginalRequest = Request {
+Response {responseStatus = Status {statusCode = 200, statusMessage = "OK"}, responseVersion = HTTP/1.1, responseHeaders = [("Server","nginx/1.22.0"),("Date","Thu, 23 Jun 2022 22:08:46 GMT"),("Content-Type","application/octet-stream"),("Transfer-Encoding","chunked"),("Connection","keep-alive")], responseBody = "1\n2\n3\n4\n", responseCookieJar = CJ {expose = []}, responseClose' = ResponseClose, responseOriginalRequest = Request {
   host                 = "127.0.0.1"
   port                 = 8010
   secure               = False
@@ -122,7 +124,7 @@ Response {responseStatus = Status {statusCode = 200, statusMessage = "OK"}, resp
   proxySecureMode      = ProxySecureWithConnect
 }
 }
-(60.07 secs, 1,077,320 bytes)
+(60.07 secs, 1,082,880 bytes)
 </pre>
 
 Here, the first request comes from the standard `httpLbs` which, after timely
@@ -130,10 +132,11 @@ receiving of the first chunk of the response (including headers and the first
 chunk of the body), no longer applies any timeouts and may last as long as the
 response endures: in this case, it lasts 80 seconds and successfully returns.
 In the second request, `httpLbsBrReadWithTimeout` timely receives the first
-chunk of the response too, however the second chunk is coming in 40 seconds
-which exceeds the default response timeout value (30 seconds), and the function
-throws `ResponseTimeout` exception after 50 seconds from the start. In the third
-request, `httpLbsBrReadWithTimeout` returns successfully after 60 seconds
-because every chunk of the response comes every 20 seconds without triggering
-timeouts.
+chunk of the response too, the second chunk comes in 20 seconds, and finally,
+as the third chunk is going to come in 40 seconds which exceeds the default
+response timeout value (30 seconds), the function throws `ResponseTimeout`
+exception after 50 seconds from the start of the request. In the third request,
+`httpLbsBrReadWithTimeout` returns successfully after 60 seconds because every
+extra chunk of the response was coming every 20 seconds without triggering the
+timeout.
 
