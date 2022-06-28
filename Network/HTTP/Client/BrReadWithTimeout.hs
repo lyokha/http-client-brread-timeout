@@ -21,6 +21,7 @@
 module Network.HTTP.Client.BrReadWithTimeout (
                                               fromResponseTimeout
                                              ,brReadWithTimeout
+                                             ,httpLbsBrReadWithCustomTimeout
                                              ,httpLbsBrReadWithTimeout
                                              ) where
 
@@ -68,11 +69,20 @@ brReadWithTimeout tmo req br = do
 
 -- | This is like 'httpLbs' but with a timeout between body read events.
 --
+-- The value of the timeout is passed in the first parameter as a number of
+-- microseconds. A negative value effectively disables the timeout which makes
+-- the function behave exactly as 'httpLbs'.
+httpLbsBrReadWithCustomTimeout :: Int -> Request -> Manager ->
+    IO (Response L.ByteString)
+httpLbsBrReadWithCustomTimeout tmo req man = withResponse req man $ \res -> do
+    bss <- brConsume $ brReadWithTimeout tmo req $ responseBody res
+    return res { responseBody = L.fromChunks bss }
+
+-- | This is like 'httpLbs' but with a timeout between body read events.
+--
 -- The value of the timeout is retrieved from the 'ResponseTimeout' of the
 -- request.
 httpLbsBrReadWithTimeout :: Request -> Manager -> IO (Response L.ByteString)
-httpLbsBrReadWithTimeout req man = withResponse req man $ \res -> do
-    let tmo = fromResponseTimeout req man
-    bss <- brConsume $ brReadWithTimeout tmo req $ responseBody res
-    return res { responseBody = L.fromChunks bss }
+httpLbsBrReadWithTimeout req man =
+    httpLbsBrReadWithCustomTimeout (fromResponseTimeout req man) req man
 
