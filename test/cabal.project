@@ -1,0 +1,2 @@
+packages: test.cabal ../http-client-brread-timeout.cabal
+
