@@ -1,3 +1,5 @@
+{-# LANGUAGE LambdaCase #-}
+
 import Network.HTTP.Client
 import Network.HTTP.Client.BrReadWithTimeout
 import Network.HTTP.Types.Status
@@ -5,28 +7,37 @@ import Data.ByteString.Lazy (ByteString)
 import Control.Exception
 import Test.HUnit
 
-testReq :: (Request -> Manager -> IO (Response ByteString)) ->
-    Request -> Manager -> Int -> Test
-testReq handler req man expected = TestCase $ do
-    status <- (statusCode . responseStatus <$> handler req man) `catch` \e ->
-        return $ case e of
-                     HttpExceptionRequest _ ResponseTimeout -> 504
-                     _ -> 500
+data ResponseStatus = ResponseStatus Int
+                    | ResponseTimeoutException
+                    | ResponseOtherException
+                    deriving (Show, Eq)
+
+testRequest :: (Request -> Manager -> IO (Response ByteString)) ->
+    Request -> Manager -> ResponseStatus -> Test
+testRequest handler req man expected = TestCase $ do
+    status <- (ResponseStatus . statusCode . responseStatus <$>
+                  handler req man
+              ) `catch` \case
+                  HttpExceptionRequest _ ResponseTimeout ->
+                      return ResponseTimeoutException
+                  _ -> return ResponseOtherException
     status @?= expected
 
 main :: IO ()
 main = do
-    let httpManager = newManager defaultManagerSettings
-    man <- httpManager
+    man <- newManager defaultManagerSettings
     reqVerySlow <- parseRequest "GET http://127.0.0.1:8010/very/slow"
     reqSlow <- parseRequest "GET http://127.0.0.1:8010/slow"
 
     runTestTTAndExit $ TestList
         [TestLabel "testHttpLbs" $
-            testReq httpLbs reqVerySlow man 200
+            testRequest httpLbs reqVerySlow man $
+                ResponseStatus 200
         ,TestLabel "testHttpLbsBrReadWithTimeout" $
-            testReq httpLbsBrReadWithTimeout reqVerySlow man 504
+            testRequest httpLbsBrReadWithTimeout reqVerySlow man
+                ResponseTimeoutException
         ,TestLabel "testHttpLbsBrReadWithTimeout" $
-            testReq httpLbsBrReadWithTimeout reqSlow man 200
+            testRequest httpLbsBrReadWithTimeout reqSlow man $
+                ResponseStatus 200
         ]
 
