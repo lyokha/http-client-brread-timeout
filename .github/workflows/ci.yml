@@ -42,7 +42,7 @@ jobs:
           wget https://github.com/openresty/echo-nginx-module/archive/refs/tags/v${NGXECHOVER}.tar.gz \
               -O echo-nginx-module-${NGXECHOVER}.tar.gz &&
               tar xzvf echo-nginx-module-${NGXECHOVER}.tar.gz
-          export ngx_prefix=$(pwd)
+          export ngx_prefix=$(pwd)/nginx
           cd nginx-${NGXVER}/
           ./configure --prefix="$ngx_prefix" \
               --add-module=../echo-nginx-module-${NGXECHOVER}
