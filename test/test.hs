@@ -12,15 +12,13 @@ data ResponseStatus = ResponseStatus Int
                     | ResponseOtherException
                     deriving (Show, Eq)
 
-testRequest :: (Request -> Manager -> IO (Response ByteString)) ->
-    Request -> Manager -> ResponseStatus -> Test
-testRequest handler req man expected = TestCase $ do
-    status <- (ResponseStatus . statusCode . responseStatus <$>
-                  handler req man
-              ) `catch` \case
-                  HttpExceptionRequest _ ResponseTimeout ->
-                      return ResponseTimeoutException
-                  _ -> return ResponseOtherException
+testRequest :: IO (Response ByteString) -> ResponseStatus -> Test
+testRequest req expected = TestCase $ do
+    status <- (ResponseStatus . statusCode . responseStatus <$> req)
+        `catch` \case
+                    HttpExceptionRequest _ ResponseTimeout ->
+                        return ResponseTimeoutException
+                    _ -> return ResponseOtherException
     status @?= expected
 
 main :: IO ()
@@ -30,14 +28,14 @@ main = do
     reqSlow <- parseRequest "GET http://127.0.0.1:8010/slow"
 
     runTestTTAndExit $ TestList
-        [TestLabel "testHttpLbs" $
-            testRequest httpLbs reqVerySlow man $
+        [TestLabel "httpLbs-reqVerySlow" $
+            testRequest (httpLbs reqVerySlow man) $
                 ResponseStatus 200
-        ,TestLabel "testHttpLbsBrReadWithTimeout" $
-            testRequest httpLbsBrReadWithTimeout reqVerySlow man
+        ,TestLabel "httpLbsBrReadWithTimeout-reqVerySlow" $
+            testRequest (httpLbsBrReadWithTimeout reqVerySlow man)
                 ResponseTimeoutException
-        ,TestLabel "testHttpLbsBrReadWithTimeout" $
-            testRequest httpLbsBrReadWithTimeout reqSlow man $
+        ,TestLabel "httpLbsBrReadWithTimeout-reqSlow" $
+            testRequest (httpLbsBrReadWithTimeout reqSlow man) $
                 ResponseStatus 200
         ]
 
