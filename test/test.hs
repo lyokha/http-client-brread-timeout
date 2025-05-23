@@ -27,14 +27,14 @@ main = do
     reqVerySlow <- parseRequest "GET http://127.0.0.1:8010/very/slow"
     reqSlow <- parseRequest "GET http://127.0.0.1:8010/slow"
 
-    runTestTTAndExit $ TestList
-        [TestLabel "httpLbs-reqVerySlow" $
+    runTestTTAndExit $ test
+        ["httpLbs-reqVerySlow" ~:
             testRequest (httpLbs reqVerySlow man) $
                 ResponseStatus 200
-        ,TestLabel "httpLbsBrReadWithTimeout-reqVerySlow" $
+        ,"httpLbsBrReadWithTimeout-reqVerySlow" ~:
             testRequest (httpLbsBrReadWithTimeout reqVerySlow man)
                 ResponseTimeoutException
-        ,TestLabel "httpLbsBrReadWithTimeout-reqSlow" $
+        ,"httpLbsBrReadWithTimeout-reqSlow" ~:
             testRequest (httpLbsBrReadWithTimeout reqSlow man) $
                 ResponseStatus 200
         ]
