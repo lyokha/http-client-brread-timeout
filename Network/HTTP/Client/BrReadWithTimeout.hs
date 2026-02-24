@@ -56,8 +56,8 @@ fromResponseTimeout req man =
 -- applying a timeout passed in the first parameter as a number of microseconds
 -- between body read events.
 --
--- Throws 'E.ResponseTimeout' if reading of the next chunk of the response body
--- timed out.
+-- Throws 'Network.HTTP.Client.ResponseTimeout' if reading of the next chunk of
+-- the response body timed out.
 brReadWithTimeout :: Int -> Request -> BodyReader -> IO ByteString
 brReadWithTimeout tmo req br = do
     x <- timeout tmo br
