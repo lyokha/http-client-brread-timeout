@@ -1,5 +1,5 @@
 name:                   http-client-brread-timeout
-version:                0.1.1.0
+version:                0.1.1.1
 synopsis:       Http client with time-limited brRead
 description:    Http client with timeouts applied in between body read events.
         .
@@ -13,7 +13,7 @@ extra-doc-files:        Changelog.md, README.md
 author:                 Alexey Radkov <alexey.radkov@gmail.com>
 maintainer:             Alexey Radkov <alexey.radkov@gmail.com>
 stability:              experimental
-copyright:              2022 Alexey Radkov
+copyright:              2022-2026 Alexey Radkov
 category:               Network
 build-type:             Simple
 cabal-version:          1.20
