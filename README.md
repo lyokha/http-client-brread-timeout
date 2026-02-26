@@ -50,18 +50,15 @@ http {
 }
 ```
 
-*GHCI* session.
+##### GHCi REPL session (*cabal repl*).
 
 <pre>
-<b>Prelude&gt;</b> import Network.HTTP.Client as HTTP.Client
-<b>Prelude HTTP.Client&gt;</b> import Network.HTTP.Client.BrReadWithTimeout as BrReadWithTimeout
-<b>Prelude HTTP.Client BrReadWithTimeout&gt;</b> httpManager = newManager defaultManagerSettings
-<b>Prelude HTTP.Client BrReadWithTimeout&gt;</b> man &lt;- httpManager
-<b>Prelude HTTP.Client BrReadWithTimeout&gt;</b> reqVerySlow &lt;- parseRequest "GET http://127.0.0.1:8010/very/slow"
-<b>Prelude HTTP.Client BrReadWithTimeout&gt;</b> reqSlow &lt;- parseRequest "GET http://127.0.0.1:8010/slow"
-<b>Prelude HTTP.Client BrReadWithTimeout&gt;</b> :set +s
-<b>Prelude HTTP.Client BrReadWithTimeout&gt;</b> httpLbs reqVerySlow man
-Response {responseStatus = Status {statusCode = 200, statusMessage = "OK"}, responseVersion = HTTP/1.1, responseHeaders = [("Server","nginx/1.22.0"),("Date","Thu, 23 Jun 2022 22:04:02 GMT"),("Content-Type","application/octet-stream"),("Transfer-Encoding","chunked"),("Connection","keep-alive")], responseBody = "1\n2\n3\n4\n", responseCookieJar = CJ {expose = []}, responseClose' = ResponseClose, responseOriginalRequest = Request {
+<b>&ast;N.HTTP.C.BrReadWithTimeout&gt;</b> man &lt;- newManager defaultManagerSettings
+<b>&ast;N.HTTP.C.BrReadWithTimeout&gt;</b> reqVerySlow &lt;- parseRequest "GET http://127.0.0.1:8010/very/slow"
+<b>&ast;N.HTTP.C.BrReadWithTimeout&gt;</b> reqSlow &lt;- parseRequest "GET http://127.0.0.1:8010/slow"
+<b>&ast;N.HTTP.C.BrReadWithTimeout&gt;</b> :set +s
+<b>&ast;N.HTTP.C.BrReadWithTimeout&gt;</b> httpLbs reqVerySlow man
+Response {responseStatus = Status {statusCode = 200, statusMessage = "OK"}, responseVersion = HTTP/1.1, responseHeaders = [("Server","nginx/1.28.0"),("Date","Thu, 26 Feb 2026 13:33:38 GMT"),("Content-Type","application/octet-stream"),("Transfer-Encoding","chunked"),("Connection","keep-alive")], responseBody = "1\n2\n3\n4\n", responseCookieJar = CJ {expose = []}, responseClose' = ResponseClose, responseOriginalRequest = Request {
   host                 = "127.0.0.1"
   port                 = 8010
   secure               = False
@@ -76,9 +73,9 @@ Response {responseStatus = Status {statusCode = 200, statusMessage = "OK"}, resp
   requestVersion       = HTTP/1.1
   proxySecureMode      = ProxySecureWithConnect
 }
-}
-(80.09 secs, 1,084,840 bytes)
-<b>Prelude HTTP.Client BrReadWithTimeout&gt;</b> httpLbsBrReadWithTimeout reqVerySlow man
+, responseEarlyHints = []}
+(80.08 secs, 1,266,728 bytes)
+<b>&ast;N.HTTP.C.BrReadWithTimeout&gt;</b> httpLbsBrReadWithTimeout reqVerySlow man
 &ast;&ast;&ast; Exception: HttpExceptionRequest Request {
   host                 = "127.0.0.1"
   port                 = 8010
@@ -95,8 +92,12 @@ Response {responseStatus = Status {statusCode = 200, statusMessage = "OK"}, resp
   proxySecureMode      = ProxySecureWithConnect
 }
  ResponseTimeout
-<b>Prelude HTTP.Client BrReadWithTimeout&gt;</b> httpLbsBrReadWithTimeout reqSlow man
-Response {responseStatus = Status {statusCode = 200, statusMessage = "OK"}, responseVersion = HTTP/1.1, responseHeaders = [("Server","nginx/1.22.0"),("Date","Thu, 23 Jun 2022 22:08:46 GMT"),("Content-Type","application/octet-stream"),("Transfer-Encoding","chunked"),("Connection","keep-alive")], responseBody = "1\n2\n3\n4\n", responseCookieJar = CJ {expose = []}, responseClose' = ResponseClose, responseOriginalRequest = Request {
+
+HasCallStack backtrace:
+  throwIO, called at ./Network/HTTP/Client/BrReadWithTimeout.hs:64:20 in http-client-brread-timeout-0.1.1.1-inplace:Network.HTTP.Client.BrReadWithTimeout
+
+<b>&ast;N.HTTP.C.BrReadWithTimeout&gt;</b> httpLbsBrReadWithTimeout reqSlow man
+Response {responseStatus = Status {statusCode = 200, statusMessage = "OK"}, responseVersion = HTTP/1.1, responseHeaders = [("Server","nginx/1.28.0"),("Date","Thu, 26 Feb 2026 13:37:49 GMT"),("Content-Type","application/octet-stream"),("Transfer-Encoding","chunked"),("Connection","keep-alive")], responseBody = "1\n2\n3\n4\n", responseCookieJar = CJ {expose = []}, responseClose' = ResponseClose, responseOriginalRequest = Request {
   host                 = "127.0.0.1"
   port                 = 8010
   secure               = False
@@ -111,8 +112,8 @@ Response {responseStatus = Status {statusCode = 200, statusMessage = "OK"}, resp
   requestVersion       = HTTP/1.1
   proxySecureMode      = ProxySecureWithConnect
 }
-}
-(60.07 secs, 1,082,880 bytes)
+, responseEarlyHints = []}
+(60.05 secs, 1,261,728 bytes)
 </pre>
 
 Here, the first request comes from the standard `httpLbs` which, after timely
