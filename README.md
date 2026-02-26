@@ -15,6 +15,8 @@ slow server may send the rest of the response very slowly.
 
 A slow server can be emulated in *Nginx* with the following configuration.
 
+##### nginx.conf
+
 ```nginx
 user                    nobody;
 worker_processes        2;
