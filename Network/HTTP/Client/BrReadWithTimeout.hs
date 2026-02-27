@@ -18,23 +18,27 @@
 -----------------------------------------------------------------------------
 
 
-module Network.HTTP.Client.BrReadWithTimeout (
-                                              fromResponseTimeout
+module Network.HTTP.Client.BrReadWithTimeout (fromResponseTimeout
                                              ,brReadWithTimeout
+                                             ,brReadSomeWithTimeout
+                                             ,brConsumeWithTimeout
                                              ,httpLbsBrReadWithCustomTimeout
                                              ,httpLbsBrReadWithTimeout
                                              ) where
 
 import           Network.HTTP.Client
-import qualified Network.HTTP.Client.Internal as I (ResponseTimeout (..)
-                                                   ,mResponseTimeout
-                                                   )
+import qualified Network.HTTP.Client.Internal
+                    as I (ResponseTimeout (..), mResponseTimeout)
 import           Data.ByteString (ByteString)
 import qualified Data.ByteString.Lazy as L
 import           Control.Exception
 import           System.Timeout
 
 -- | Converts t'ResponseTimeout' of the request into the number of microseconds.
+--
+-- This function retrieves the value of the timeout on reading the response
+-- headers which can be used to set equal timeouts between body read events in
+-- `brReadWithTimeout`, `brReadSomeWithTimeout`, and `brConsumeWithTimeout`.
 fromResponseTimeout :: Request -> Manager -> Int
 fromResponseTimeout req man =
     case responseTimeout req of
@@ -58,13 +62,32 @@ fromResponseTimeout req man =
 -- Throws v'ResponseTimeout' if reading of the next chunk of the response body
 -- timed out.
 brReadWithTimeout :: Int -> Request -> BodyReader -> IO ByteString
-brReadWithTimeout tmo req br = do
-    x <- timeout tmo br
-    case x of
-        Nothing -> throwIO $ HttpExceptionRequest
-            req { responseTimeout = I.ResponseTimeoutMicro tmo }
-                ResponseTimeout
-        Just bs -> return bs
+brReadWithTimeout tmo req br = timeout tmo br
+    >>= maybe (throwIO $
+                  HttpExceptionRequest
+                      req { responseTimeout = I.ResponseTimeoutMicro tmo }
+                      ResponseTimeout
+              ) return
+
+-- | This is like 'brReadSome' but with a timeout between body read events.
+--
+-- The value of the timeout is passed in the first parameter as a number of
+-- microseconds. A negative value effectively disables the timeout which makes
+-- the function behave exactly as 'brReadSome'.
+--
+-- @since 0.2.0.0
+brReadSomeWithTimeout :: Int -> Request -> BodyReader -> Int -> IO L.ByteString
+brReadSomeWithTimeout tmo req br = brReadSome $ brReadWithTimeout tmo req br
+
+-- | This is like 'brConsume' but with a timeout between body read events.
+--
+-- The value of the timeout is passed in the first parameter as a number of
+-- microseconds. A negative value effectively disables the timeout which makes
+-- the function behave exactly as 'brConsume'.
+--
+-- @since 0.2.0.0
+brConsumeWithTimeout :: Int -> Request -> BodyReader -> IO [ByteString]
+brConsumeWithTimeout tmo req br = brConsume $ brReadWithTimeout tmo req br
 
 -- | This is like 'httpLbs' but with a timeout between body read events.
 --
@@ -74,7 +97,7 @@ brReadWithTimeout tmo req br = do
 httpLbsBrReadWithCustomTimeout :: Int -> Request -> Manager ->
     IO (Response L.ByteString)
 httpLbsBrReadWithCustomTimeout tmo req man = withResponse req man $ \res -> do
-    bss <- brConsume $ brReadWithTimeout tmo req $ responseBody res
+    bss <- brConsumeWithTimeout tmo req $ responseBody res
     return res { responseBody = L.fromChunks bss }
 
 -- | This is like 'httpLbs' but with a timeout between body read events.
