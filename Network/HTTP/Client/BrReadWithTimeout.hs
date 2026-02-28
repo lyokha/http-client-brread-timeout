@@ -36,8 +36,8 @@ import           System.Timeout
 
 -- | Converts t'ResponseTimeout' of the request into the number of microseconds.
 --
--- This function retrieves the value of the timeout on reading the response
--- headers which can be used to set equal timeouts between body read events in
+-- This function returns the value of the timeout on reading response headers
+-- which can be used to apply equal timeouts between body read events in
 -- `brReadWithTimeout`, `brReadSomeWithTimeout`, and `brConsumeWithTimeout`.
 fromResponseTimeout :: Request -> Manager -> Int
 fromResponseTimeout req man =
@@ -75,6 +75,9 @@ brReadWithTimeout tmo req br = timeout tmo br
 -- microseconds. A negative value effectively disables the timeout which makes
 -- the function behave exactly as 'brReadSome'.
 --
+-- Implemented as `brReadSome` with `brReadWithTimeout` passed in its first
+-- parameter.
+--
 -- @since 0.2.0.0
 brReadSomeWithTimeout :: Int -> Request -> BodyReader -> Int -> IO L.ByteString
 brReadSomeWithTimeout tmo req br = brReadSome $ brReadWithTimeout tmo req br
@@ -84,6 +87,9 @@ brReadSomeWithTimeout tmo req br = brReadSome $ brReadWithTimeout tmo req br
 -- The value of the timeout is passed in the first parameter as a number of
 -- microseconds. A negative value effectively disables the timeout which makes
 -- the function behave exactly as 'brConsume'.
+--
+-- Implemented as `brConsume` with `brReadWithTimeout` passed in its first
+-- parameter.
 --
 -- @since 0.2.0.0
 brConsumeWithTimeout :: Int -> Request -> BodyReader -> IO [ByteString]
