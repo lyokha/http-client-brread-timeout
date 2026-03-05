@@ -95,8 +95,10 @@ Response {responseStatus = Status {statusCode = 200, statusMessage = "OK"}, resp
 }
  ResponseTimeout
 
+While handling HttpExceptionContentWrapper {unHttpExceptionContentWrapper = ResponseTimeout}
+
 HasCallStack backtrace:
-  throwIO, called at ./Network/HTTP/Client/BrReadWithTimeout.hs:64:20 in http-client-brread-timeout-0.1.1.1-inplace:Network.HTTP.Client.BrReadWithTimeout
+  throwIO, called at ./Network/HTTP/Client/BrReadWithTimeout.hs:123:26 in http-client-brread-timeout-0.3.0.0-inplace:Network.HTTP.Client.BrReadWithTimeout
 
 <b>&ast;N.HTTP.C.BrReadWithTimeout&gt;</b> httpLbsBrReadWithTimeout reqSlow man
 Response {responseStatus = Status {statusCode = 200, statusMessage = "OK"}, responseVersion = HTTP/1.1, responseHeaders = [("Server","nginx/1.28.0"),("Date","Thu, 26 Feb 2026 13:37:49 GMT"),("Content-Type","application/octet-stream"),("Transfer-Encoding","chunked"),("Connection","keep-alive")], responseBody = "1\n2\n3\n4\n", responseCookieJar = CJ {expose = []}, responseClose' = ResponseClose, responseOriginalRequest = Request {
